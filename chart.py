@@ -1,7 +1,5 @@
-
+#!/usr/bin/env python
 import urllib.request
-
-
 
 
 class Chart:

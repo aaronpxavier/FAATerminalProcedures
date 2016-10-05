@@ -1,10 +1,15 @@
 # FAATerminalProcedures
 
-This script downloads pdf charts from the FAA Digital Terminal Procedures Publication. (https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/)
+This script downloads pdf charts from the FAA Digital Terminal Procedures Publication.
+https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/
+Just call scraper.py and pass in airprot identifiers in the arguments list. 
 
-## Code Example
+## Usage
 
-./scraper.py kjfk katl lax 
+Download charts to the present working directory. 
+./scraper.py kjfk katl lax  
+Downloads chart to other directory
+./scrpaer.py kvrb kfpr -d /somepath
 
 # License
 
