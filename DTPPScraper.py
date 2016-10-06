@@ -7,35 +7,45 @@ import datetime
 from chart import Chart
 from bs4 import BeautifulSoup
 
-class Scraper:
+class DTPPScraper:
 
+    #pre:init method does not take any parameters.
+    #post:creates new instance of class DTPPScraper
     def __init__(self):
+        self.__ident = ""
         self.__charts = []
 
+    #pre:method takes no argument. Charts attribute must not be empty.
+    #post:downloads pdf file for the last Chart object in Charts array.
+    def DownloadChart(self):
+        with urllib.request.urlopen(self.__charts[-1].getPDFURL()) as chartData:
+            print("downloading " + self.__charts[-1].getChartName() +
+                  " from " + self.__charts[-1].getPDFURL())
+            self.__charts[-1].setChartData(chartData)
 
     # traverses columns in page table
     # pre: tag must be declared and defined
     # post: traverses page table column. returns chart object.
     def __tableColumnTraverse(self,tag):
-        tdCounter = 0
         self.__charts.append(Chart())
-        for tag in tag.find_all(re.compile("td")):
-            if tdCounter == 3 :
+        for index, tag in enumerate(tag.find_all(re.compile("td"))):
+            if index == 3 :
                 airportID = tag.text
                 if airportID[airportID.find("(")+1:airportID.find(")")] != "" :
                     self.__charts[-1].setAirportID(airportID[airportID.find("(") + 1:airportID.find(")")])
                 else:
                     self.__charts[-1].setAirportID(airportID[:3])
-            if tdCounter == 4 :
+            elif index == 4 :
                 self.__charts[-1].setRegionName(tag.text)
-            elif tdCounter == 6 :
+            elif index == 6 :
                 self.__charts[-1].setProcedureName(tag.text)
-            elif tdCounter == 7 :
+            elif index == 7 :
                 if tag.a:
                     chartName = tag.text[:-6]+".pdf"
                     self.__charts[-1].setPDFURL(tag.a['href'])
                     self.__charts[-1].setChartName(chartName.replace("/", "_"))
-            tdCounter += 1
+
+
 
     # traverses all rows in page table.
     # pre: soup and cnx are defined and declared
@@ -43,11 +53,15 @@ class Scraper:
     #       returns false if rows are less than 50. indicates that there are no more pages to load and program should end.
     def __tableRowTraverse(self,soup):
         count = 0
-        for tag in soup.table.tbody.find_all(re.compile("tr")):
-            # counter increments in order to keep track of number of rows
-            count+=1
-            self.__tableColumnTraverse(tag)
-            print(self.__charts[-1].getChartName())
+        try:
+            for tag in soup.table.tbody.find_all(re.compile("tr")):
+             # counter increments in order to keep track of number of rows
+                count += 1
+                self.__tableColumnTraverse(tag)
+            #print(self.__charts[-1].getChartName())
+        except Exception:
+            print("Invalid airport Id no charts found for " + self.__ident)
+            return False
         if (count < 50):
             return False
         else:
@@ -55,7 +69,8 @@ class Scraper:
 
     # pre:function takes no arguments
     # post:outputs string - current chart cycle for faa digital products query
-    def getCurrentCycl(self):
+    @staticmethod
+    def getCurrentCycl():
         present = datetime.datetime.now()            # present time
         cycleBase = datetime.datetime(2016, 8, 18)   # reference point for faa cycles
         timeDelta = datetime.timedelta(days=28)      # used to increase date by 28 days. FAA chart cycle
@@ -73,13 +88,14 @@ class Scraper:
 
     #pre: identIn must be declared and defined with valid 3 or 4 character airport id.
     #post: stores charts in charts[] attribute.
-    def parse(self,identIn):
+    def scrape(self,identIn):
         pageCount = 0
-        ident = "&ident=" + identIn
+        identGetParameter =  "&ident=" + identIn
+        self.__ident = identIn
         baseurl = "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
         cycle = self.getCurrentCycl()
+        url = baseurl + cycle + identGetParameter
 
-        url = baseurl + cycle + ident
         # loops through html pages in FAA chart results. finishes when all pages have been scraped
         while (True):
             # gets html document from FAA chart results
@@ -87,19 +103,28 @@ class Scraper:
             print (url)
             # increment is used in http get request attribute to cycle thru pages
             pageCount += 1
-            print ("Page #: " + str(pageCount))
+            print ("Accessing charts for: " + identIn)
 
             # loads next page if tableRowtravers() returns true, breaks loop if tableRowtravers() returns false
             if (self.__tableRowTraverse(bSoup)):
                 # creates new url for next page if there are more pages in result
-                url = baseurl + cycle + ident + "&page=" + str(pageCount+1)
+                url = baseurl + cycle + identGetParameter + "&page=" + str(pageCount+1)
             else:
                 break
 
-    #pre: function takes no arguments.
+    #pre: function takes no arguments. private member __charts must be not empty.
     #post: returns array of Chart objects.
     def getCharts(self):
-        return self.__charts
+        if not self.__charts:
+            raise Exception ("charts array is empty. must call scrape method with valid airportId param to load array")
+        else:
+            return self.__charts
+
+
+
+
+
+
 
 
 

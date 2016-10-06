@@ -1,16 +1,18 @@
 #!/usr/bin/env python
-import urllib.request
 
 
 class Chart:
+
     def __init__ (self):
         self.__airportID = ' '
         self.__regionName = ' '
         self.__procedureName = ' '
         self.__PDFURL = ' '
         self.__chartName = ' '
-        self.__chartData  = ' '
+        self.__chartPDFFile  = ' '
 
+    #pre: stringIn must be declared and defined as a valid 3 or 4 character airport id.
+    #post:
     def setAirportID(self, stringIn):
         self.__airportID = stringIn
 
@@ -41,15 +43,13 @@ class Chart:
     def getChartName(self):
         return self.__chartName
 
-    def downLoadChart(self):
-        with urllib.request.urlopen(self.__PDFURL) as chartData:
-            print("downloading " + self.__chartName + " from " + self.__PDFURL)
-            self.__chartData = chartData
+    def setChartData(self,dataIn):
+        self.__chartPDFFile = dataIn
+
     def getChartData(self):
-        if self.__chartData == ' ':
+        if self.__chartPDFFile == ' ':
             print("no chart data in Chart Object")
-        return self.__chartData
-    
+        return self.__chartPDFFile
 
 
 
