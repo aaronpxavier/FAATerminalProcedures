@@ -17,7 +17,7 @@ class DTPPScraper:
 
     #pre:method takes no argument. Charts attribute must not be empty.
     #post:downloads pdf file for the last Chart object in Charts array.
-    def DownloadChart(self):
+    def __downloadChart(self):
         with urllib.request.urlopen(self.__charts[-1].getPDFURL()) as chartData:
             print("downloading " + self.__charts[-1].getChartName() +
                   " from " + self.__charts[-1].getPDFURL())
@@ -44,7 +44,7 @@ class DTPPScraper:
                     chartName = tag.text[:-6]+".pdf"
                     self.__charts[-1].setPDFURL(tag.a['href'])
                     self.__charts[-1].setChartName(chartName.replace("/", "_"))
-
+                    self.__downloadChart()
 
 
     # traverses all rows in page table.
@@ -100,11 +100,11 @@ class DTPPScraper:
         while (True):
             # gets html document from FAA chart results
             bSoup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
-            print (url)
+
             # increment is used in http get request attribute to cycle thru pages
             pageCount += 1
             print ("Accessing charts for: " + identIn)
-
+            print("scraping page " + url)
             # loads next page if tableRowtravers() returns true, breaks loop if tableRowtravers() returns false
             if (self.__tableRowTraverse(bSoup)):
                 # creates new url for next page if there are more pages in result
