@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env
 
 from __future__ import print_function
 import urllib.request
@@ -9,8 +9,8 @@ from bs4 import BeautifulSoup
 
 class DTPPScraper:
 
-    #pre:init method does not take any parameters.
-    #post:creates new instance of class DTPPScraper
+    # pre: identIn must be declared and defined with valid 3 or 4 character airport id.
+    # post: stores scraped charts in charts[] attribute and creates new instance of DTPPScraper class
     def __init__(self, identIn):
         self.__ident = ""
         self.__charts = []
@@ -114,9 +114,6 @@ class DTPPScraper:
 
         return "?cycle=" + str(cycleBase.year)[2:] + cycleMonth
 
-    #pre: identIn must be declared and defined with valid 3 or 4 character airport id.
-    #post: stores charts in charts[] attribute.
-    #def scrape(self,identIn):
 
 
     #pre: function takes no arguments. private member __charts must be not empty.
