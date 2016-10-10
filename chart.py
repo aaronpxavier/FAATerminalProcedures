@@ -4,12 +4,12 @@
 class Chart:
 
     def __init__ (self):
-        self.__airportID = ' '
-        self.__regionName = ' '
-        self.__procedureName = ' '
-        self.__PDFURL = ' '
-        self.__chartName = ' '
-        self.__chartPDFFile  = ' '
+        self.__airportID = ''
+        self.__regionName = ''
+        self.__procedureName = ''
+        self.__PDFURL = ''
+        self.__chartName = ''
+        self.__chartPDFFile  =  None
 
     #pre: stringIn must be declared and defined as a valid 3 or 4 character airport id.
     #post:

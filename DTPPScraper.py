@@ -11,17 +11,44 @@ class DTPPScraper:
 
     #pre:init method does not take any parameters.
     #post:creates new instance of class DTPPScraper
-    def __init__(self):
+    def __init__(self, identIn):
         self.__ident = ""
         self.__charts = []
+        pageCount = 0
+        identGetParameter =  "&ident=" + identIn
+        self.__ident = identIn
+        baseurl = "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
+        cycle = self.getCurrentCycl()
+        url = baseurl + cycle + identGetParameter
+
+        # loops through html pages in FAA chart results. finishes when all pages have been scraped
+        while (True):
+            # gets html document from FAA chart results
+            bSoup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
+
+            # increment is used in http get request attribute to cycle thru pages
+            pageCount += 1
+            print ("Accessing charts for: " + identIn)
+            print("scraping page " + url)
+            # loads next page if tableRowtravers() returns true, breaks loop if tableRowtravers() returns false
+            if (self.__tableRowTraverse(bSoup)):
+                # creates new url for next page if there are more pages in result
+                url = baseurl + cycle + identGetParameter + "&page=" + str(pageCount+1)
+            else:
+                break
 
     #pre:method takes no argument. Charts attribute must not be empty.
     #post:downloads pdf file for the last Chart object in Charts array.
-    def __downloadChart(self):
-        with urllib.request.urlopen(self.__charts[-1].getPDFURL()) as chartData:
-            print("downloading " + self.__charts[-1].getChartName() +
-                  " from " + self.__charts[-1].getPDFURL())
-            self.__charts[-1].setChartData(chartData)
+    def downloadCharts(self):
+        for chart in self.__charts:
+            print("downloading " + chart.getChartName() +
+              " from " + chart.getPDFURL())
+            try:
+                request = urllib.request.urlopen(chart.getPDFURL())
+            except Exception:
+                print("Could not download chart " + chart.getChartName())
+            chart.setChartData(request.read())
+
 
     # traverses columns in page table
     # pre: tag must be declared and defined
@@ -44,7 +71,8 @@ class DTPPScraper:
                     chartName = tag.text[:-6]+".pdf"
                     self.__charts[-1].setPDFURL(tag.a['href'])
                     self.__charts[-1].setChartName(chartName.replace("/", "_"))
-                    self.__downloadChart()
+        if self.__charts[-1].getPDFURL() == '':
+            self.__charts.pop()
 
 
     # traverses all rows in page table.
@@ -88,29 +116,8 @@ class DTPPScraper:
 
     #pre: identIn must be declared and defined with valid 3 or 4 character airport id.
     #post: stores charts in charts[] attribute.
-    def scrape(self,identIn):
-        pageCount = 0
-        identGetParameter =  "&ident=" + identIn
-        self.__ident = identIn
-        baseurl = "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
-        cycle = self.getCurrentCycl()
-        url = baseurl + cycle + identGetParameter
+    #def scrape(self,identIn):
 
-        # loops through html pages in FAA chart results. finishes when all pages have been scraped
-        while (True):
-            # gets html document from FAA chart results
-            bSoup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
-
-            # increment is used in http get request attribute to cycle thru pages
-            pageCount += 1
-            print ("Accessing charts for: " + identIn)
-            print("scraping page " + url)
-            # loads next page if tableRowtravers() returns true, breaks loop if tableRowtravers() returns false
-            if (self.__tableRowTraverse(bSoup)):
-                # creates new url for next page if there are more pages in result
-                url = baseurl + cycle + identGetParameter + "&page=" + str(pageCount+1)
-            else:
-                break
 
     #pre: function takes no arguments. private member __charts must be not empty.
     #post: returns array of Chart objects.
