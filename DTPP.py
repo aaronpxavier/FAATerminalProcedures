@@ -48,7 +48,10 @@ def main():
         elif len(argument) == 3 or len(argument) == 4:
             scraper = DTPPScraper(argument)
             scraper.downloadCharts()
-            chartsArry.extend(scraper.getCharts())
+            try:
+                chartsArry.extend(scraper.getCharts())
+            except Exception:
+                print("no charts found for id " + argument)
         else:
             print("arguments must be valid 3 or 4 letter aiprort id")
 
@@ -56,4 +59,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

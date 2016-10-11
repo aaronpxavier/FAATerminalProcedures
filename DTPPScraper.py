@@ -10,13 +10,13 @@ from bs4 import BeautifulSoup
 class DTPPScraper:
 
     # pre: identIn must be declared and defined with valid 3 or 4 character airport id.
-    # post: stores scraped charts in charts[] attribute and creates new instance of DTPPScraper class
+    # post: stores scraped charts in charts[] private member and creates new instance of DTPPScraper class
     def __init__(self, identIn):
         self.__ident = ""
         self.__charts = []
+        self.__ident = identIn
         pageCount = 0
         identGetParameter =  "&ident=" + identIn
-        self.__ident = identIn
         baseurl = "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
         cycle = self.getCurrentCycl()
         url = baseurl + cycle + identGetParameter
@@ -37,8 +37,8 @@ class DTPPScraper:
             else:
                 break
 
-    #pre:method takes no argument. Charts attribute must not be empty.
-    #post:downloads pdf file for the last Chart object in Charts array.
+    #pre:method takes no argument. __charts[] private member must not be empty.
+    #post:downloads pdf file for all Chart objects in private member __charts[].
     def downloadCharts(self):
         for chart in self.__charts:
             print("downloading " + chart.getChartName() +
@@ -52,10 +52,11 @@ class DTPPScraper:
 
     # traverses columns in page table
     # pre: tag must be declared and defined
-    # post: traverses page table column. returns chart object.
+    # post: traverses page table column. Creates Chart() object and appends Chart() obj to private member __charts[]
     def __tableColumnTraverse(self,tag):
         self.__charts.append(Chart())
         for index, tag in enumerate(tag.find_all(re.compile("td"))):
+            #index values tracks the current column being scraped
             if index == 3 :
                 airportID = tag.text
                 if airportID[airportID.find("(")+1:airportID.find(")")] != "" :
@@ -76,17 +77,16 @@ class DTPPScraper:
 
 
     # traverses all rows in page table.
-    # pre: soup and cnx are defined and declared
+    # pre: soup is defined and declared
     # post: returns true if rows are == to 50, this indicates there are more pages to load.
-    #       returns false if rows are less than 50. indicates that there are no more pages to load and program should end.
+    #       returns false if rows are less than 50 or if airport id is invlalid.
+    #       indicates that there are no more pages to load and scraping should end.
     def __tableRowTraverse(self,soup):
         count = 0
         try:
             for tag in soup.table.tbody.find_all(re.compile("tr")):
-             # counter increments in order to keep track of number of rows
-                count += 1
+                count += 1   # counter increments in order to keep track of number of rows
                 self.__tableColumnTraverse(tag)
-            #print(self.__charts[-1].getChartName())
         except Exception:
             print("Invalid airport Id no charts found for " + self.__ident)
             return False
@@ -120,7 +120,7 @@ class DTPPScraper:
     #post: returns array of Chart objects.
     def getCharts(self):
         if not self.__charts:
-            raise Exception ("charts array is empty. must call scrape method with valid airportId param to load array")
+            raise Exception ("charts array is empty.")
         else:
             return self.__charts
 
