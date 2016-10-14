@@ -66,12 +66,13 @@ class Chart:
     def getChartName(self):
         return self.__chartName
 
-    # pre: method takes no arguments
+    # pre: method takes no arguments. private member chartPDFFile must be not empty.
     # post: returns private member of type pdf file data chartPDFFile
     def getChartData(self):
-        if self.__chartPDFFile == ' ':
-            print("no chart data in Chart Object")
-        return self.__chartPDFFile
+        if self.__chartPDFFile == '':
+            raise Exception("no chart data in Chart obj " + self.__chartName)
+        else:
+            return self.__chartPDFFile
 
 
 

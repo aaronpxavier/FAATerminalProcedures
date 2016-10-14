@@ -8,18 +8,16 @@ from chart import Chart
 from bs4 import BeautifulSoup
 
 class DTPPScraper:
-
     # pre: identIn must be declared and defined with valid 3 or 4 character airport id.
     # post: stores scraped charts in charts[] private member and creates new instance of DTPPScraper class
     def __init__(self, identIn):
-        self.__ident = ""
-        self.__charts = []
         self.__ident = identIn
-        pageCount = 0
-        identGetParameter =  "&ident=" + identIn
-        baseurl = "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
-        cycle = self.getCurrentCycl()
-        url = baseurl + cycle + identGetParameter
+        self.__charts = []
+        page_count = 0
+        IDENT_GET_PARAM =  "&ident=" + identIn
+        BASE_URL = "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
+        CYCLE = self.getCurrentCycl()
+        url = BASE_URL + CYCLE + IDENT_GET_PARAM
 
         # loops through html pages in FAA chart results. finishes when all pages have been scraped
         while (True):
@@ -27,13 +25,13 @@ class DTPPScraper:
             bSoup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
 
             # increment is used in http get request attribute to cycle thru pages
-            pageCount += 1
+            page_count += 1
             print ("Accessing charts for: " + identIn)
             print("scraping page " + url)
             # loads next page if tableRowtravers() returns true, breaks loop if tableRowtravers() returns false
             if (self.__tableRowTraverse(bSoup)):
                 # creates new url for next page if there are more pages in result
-                url = baseurl + cycle + identGetParameter + "&page=" + str(pageCount+1)
+                url = BASE_URL + CYCLE + IDENT_GET_PARAM + "&page=" + str(page_count+1)
             else:
                 break
 
@@ -44,10 +42,11 @@ class DTPPScraper:
             print("downloading " + chart.getChartName() +
               " from " + chart.getPDFURL())
             try:
-                request = urllib.request.urlopen(chart.getPDFURL())
+                REQUEST = urllib.request.urlopen(chart.getPDFURL())
+                chart.setChartData(REQUEST.read())
             except Exception:
                 print("Could not download chart " + chart.getChartName())
-            chart.setChartData(request.read())
+
 
 
     # traverses columns in page table
@@ -58,20 +57,20 @@ class DTPPScraper:
         for index, tag in enumerate(tag.find_all(re.compile("td"))):
             #index values tracks the current column being scraped
             if index == 3 :
-                airportID = tag.text
-                if airportID[airportID.find("(")+1:airportID.find(")")] != "" :
-                    self.__charts[-1].setAirportID(airportID[airportID.find("(") + 1:airportID.find(")")])
+                airport_id = tag.text
+                if airport_id[airport_id.find("(")+1:airport_id.find(")")] != "" :
+                    self.__charts[-1].setAirportID(airport_id[airport_id.find("(") + 1:airport_id.find(")")])
                 else:
-                    self.__charts[-1].setAirportID(airportID[:3])
+                    self.__charts[-1].setAirportID(airport_id[:3])
             elif index == 4 :
                 self.__charts[-1].setRegionName(tag.text)
             elif index == 6 :
                 self.__charts[-1].setProcedureName(tag.text)
             elif index == 7 :
                 if tag.a:
-                    chartName = tag.text[:-6]+".pdf"
+                    chart_name = tag.text[:-6]+".pdf"
                     self.__charts[-1].setPDFURL(tag.a['href'])
-                    self.__charts[-1].setChartName(chartName.replace("/", "_"))
+                    self.__charts[-1].setChartName(chart_name.replace("/", "_"))
         if self.__charts[-1].getPDFURL() == '':
             self.__charts.pop()
 
@@ -99,20 +98,20 @@ class DTPPScraper:
     # post:outputs string - current chart cycle for faa digital products query
     @staticmethod
     def getCurrentCycl():
-        present = datetime.datetime.now()            # present time
-        cycleBase = datetime.datetime(2016, 8, 18)   # reference point for faa cycles
-        timeDelta = datetime.timedelta(days=28)      # used to increase date by 28 days. FAA chart cycle
+        PRESENT = datetime.datetime.now()            # present time
+        CYCLE_BASE = datetime.datetime(2016, 8, 18)   # reference point for faa cycles
+        TIME_DELTA = datetime.timedelta(days=28)      # used to increase date by 28 days. FAA chart cycle
 
-        while ((cycleBase + timeDelta) <= present):  #loop while cycle date is less than current date.
-            cycleBase = cycleBase + timeDelta
+        while ((CYCLE_BASE + TIME_DELTA) <= PRESENT):  #loop while cycle date is less than current date.
+            CYCLE_BASE = CYCLE_BASE + TIME_DELTA
 
-        cycleBase = cycleBase + timeDelta   # adds timeDelta one more time since faa cycle attribute is based on end of cycle
-        cycleMonth = str(cycleBase.month)
+        CYCLE_BASE = CYCLE_BASE + TIME_DELTA   # adds TIME_DELTA one more time since faa cycle attribute is based on end of cycle
+        cycle_month = str(CYCLE_BASE.month)
 
-        if (len(cycleMonth) == 1):          # if single digit month adds 0 to resulting string
-            cycleMonth = "0" + cycleMonth
+        if (len(cycle_month) == 1):          # if single digit month adds 0 to resulting string
+            cycle_month = "0" + cycle_month
 
-        return "?cycle=" + str(cycleBase.year)[2:] + cycleMonth
+        return "?cycle=" + str(CYCLE_BASE.year)[2:] + cycle_month
 
 
 

@@ -22,25 +22,29 @@ def writeChartsToDirectory(chartsArry, directory):
             os.makedirs(chart.getProcedureName())
         os.chdir(chart.getProcedureName())
         file = open(chart.getChartName(), "wb")
-        file.write(chart.getChartData())
+        #try catch ensures getChartData() method returns valid binary data.
+        try:
+            file.write(chart.getChartData())
+        except Exception:
+            print ("could not download chart " + chart.getChartName())
         file.close()
         os.chdir(directory)
 
 
 def main():
-    rootDirectory = os.getcwd()
-    argLength = len(sys.argv)
+    root_directory = os.getcwd()
+    ARG_LENGTH = len(sys.argv)
     chartsArry = []
-    if argLength < 2:
+    if ARG_LENGTH < 2:
         printUsage()
         return
 
-    for i in range(1, argLength):
+    for i in range(1, ARG_LENGTH):
         argument = sys.argv[i]
         if os.path.isdir(argument):
-            if (argLength - 1 == i and argLength > 2):
-                rootDirectory = argument
-            elif (argLength == 2):
+            if (ARG_LENGTH - 1 == i and ARG_LENGTH > 2):
+                root_directory = argument
+            elif (ARG_LENGTH == 2):
                 printUsage()
             else:
                 print("Invalid - directory must be last argument")
@@ -55,7 +59,7 @@ def main():
         else:
             print("arguments must be valid 3 or 4 letter aiprort id")
 
-    writeChartsToDirectory(chartsArry,rootDirectory)
+    writeChartsToDirectory(chartsArry,root_directory)
 
 if __name__ == "__main__":
     main()
