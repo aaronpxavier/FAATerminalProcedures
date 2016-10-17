@@ -4,75 +4,75 @@
 class Chart:
 
     def __init__ (self):
-        self.__airportID = ''
-        self.__regionName = ''
-        self.__procedureName = ''
-        self.__PDFURL = ''
-        self.__chartName = ''
-        self.__chartPDFFile = None
+        self.__airport_id = ''
+        self.__region_name = ''
+        self.__procedure_name = ''
+        self.__pdf_url = ''
+        self.__chart_name = ''
+        self.__chart_pdf_file = None
 
-    # pre: stringIn must be declared and defined as a valid 3 or 4 character airport id.
-    # post: stores stringIn in private member airportID
-    def setAirportID(self, stringIn):
-        self.__airportID = stringIn
+    # pre: string airport_id must be declared and defined as a valid 3 or 4 character airport id.
+    # post: stores airport_id in private member __airport_id
+    def setAirportID(self, airport_id):
+        self.__airport_id = airport_id
 
-    # pre: stringIn must be declared and defined.
-    # post: stores stringIn in private member regionName
-    def setRegionName(self,stringIn):
-        self.__regionName = stringIn
+    # pre: string region_name must be declared and defined.
+    # post: stores region_name in private member __region_name
+    def setRegionName(self, region_name):
+        self.__region_name = region_name
 
-    # pre: stringIn must be declared and defined.
-    # post: stores stringIn in private member procedureName
-    def setProcedureName(self,stringIn):
-        self.__procedureName = stringIn
+    # pre: string procedure_name must be declared and defined.
+    # post: stores procedure_name in private member __procedure_name
+    def setProcedureName(self, procedure_name):
+        self.__procedure_name = procedure_name
 
-    # pre: stringIn must be declared and defined.
-    # post: stores stringIn in private member PDFURL
-    def setPDFURL(self,stringIn):
-        self.__PDFURL = stringIn
+    # pre: string pdf_url must be declared and defined with valid url string.
+    # post: stores pdf_url in private member __pdf_url
+    def setPDFURL(self, pdf_url):
+        self.__pdf_url = pdf_url
 
-    # pre: stringIn must be declared and defined.
-    # post: stores stringIn in private member chartName
-    def setChartName(self,stringIn):
-        self.__chartName = stringIn
+    # pre: string chart_name must be declared and defined.
+    # post: stores chart_name in private member __chart_name
+    def setChartName(self, chart_name):
+        self.__chart_name = chart_name
 
-    # pre: dataIn must be declared and defined with PDF file
-    # post: pdf file is stored in private member chartPDFFile
-    def setChartData(self, dataIn):
-        self.__chartPDFFile = dataIn
+    # pre: data_in must be declared and defined with PDF file
+    # post: pdf file is stored in private member __chart_pdf_file
+    def setChartData(self, data_in):
+        self.__chart_pdf_file = data_in
 
     # pre: method takes no arguments
-    # post: returns private member of type string airportID
+    # post: returns private member of type string __airport_id
     def getAirportID(self):
-        return self.__airportID
+        return self.__airport_id
 
     # pre: method takes no arguments
-    # post: returns private member of type string airportID
+    # post: returns private member of type string __region_name
     def getRegionName(self):
-        return self.__regionName
+        return self.__region_name
 
     # pre: method takes no arguments
-    # post: returns string private member of type string procedureName
+    # post: returns string private member of type string __procedure_name
     def getProcedureName(self):
-        return self.__procedureName
+        return self.__procedure_name
 
     # pre: method takes no arguments
-    # post: returns private member of type string PDFURL
+    # post: returns private member of type string __pdf_url
     def getPDFURL(self):
-        return self.__PDFURL
+        return self.__pdf_url
 
     # pre: method takes no arguments
-    # post: returns private member of type string chartName
+    # post: returns private member of type string __chart_name
     def getChartName(self):
-        return self.__chartName
+        return self.__chart_name
 
-    # pre: method takes no arguments. private member chartPDFFile must be not empty.
+    # pre: method takes no arguments. private member __chart_pdf_file must be loaded with pdf data.
     # post: returns private member of type pdf file data chartPDFFile
     def getChartData(self):
-        if self.__chartPDFFile == '':
-            raise Exception("no chart data in Chart obj " + self.__chartName)
+        if self.__chart_pdf_file == '':
+            raise Exception("no chart data in Chart obj " + self.__chart_name)
         else:
-            return self.__chartPDFFile
+            return self.__chart_pdf_file
 
 
 

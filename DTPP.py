@@ -6,14 +6,18 @@ from DTPPScraper import DTPPScraper
 
 
 def printUsage():
-    print("Usage - \"./DTPP KJFK KLAX MIA KORD\"\n or  ./DTPP KJFK KLAX /somedirectory")
+    print("Usage - \"./DTPP KJFK KLAX MIA KORD\"\n or  \"./DTPP KJFK KLAX /somedirectory\"")
 
-def writeChartsToDirectory(chartsArry, directory):
+#pre: charts_arry must be declared and defined with valid arry of Chart() objs.
+#     directory must be declared and defined with valid directory string.
+#post:pdf files contained in chart objs are written to passed in directory.
+def writeChartsToDirectory(charts_arry, directory):
     os.chdir(directory)
-    if not os.path.exists("Charts"):
+    if not os.path.exists("Charts"): # if Charts directory doesn't exist in root directory it is created
         os.makedirs("Charts")
 
-    for chart in chartsArry:
+    # loop writes pdf files inside Charts directory and creates sub directories as needed to organize charts.
+    for chart in charts_arry:
         os.chdir("Charts")
         if not os.path.exists(chart.getAirportID()):
             os.makedirs(chart.getAirportID())
@@ -34,8 +38,9 @@ def writeChartsToDirectory(chartsArry, directory):
 def main():
     root_directory = os.getcwd()
     ARG_LENGTH = len(sys.argv)
-    chartsArry = []
-    if ARG_LENGTH < 2:
+    charts_arry = []
+
+    if ARG_LENGTH < 2:  #program requires arguments to be passed in to continue.
         printUsage()
         return
 
@@ -53,13 +58,13 @@ def main():
             scraper = DTPPScraper(argument)
             scraper.downloadCharts()
             try:
-                chartsArry.extend(scraper.getCharts())
+                charts_arry.extend(scraper.getCharts())
             except Exception:
                 print("no charts found for id " + argument)
         else:
             print("arguments must be valid 3 or 4 letter aiprort id")
 
-    writeChartsToDirectory(chartsArry,root_directory)
+    writeChartsToDirectory(charts_arry,root_directory)
 
 if __name__ == "__main__":
     main()

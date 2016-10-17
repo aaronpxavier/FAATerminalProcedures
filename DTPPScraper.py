@@ -8,28 +8,28 @@ from chart import Chart
 from bs4 import BeautifulSoup
 
 class DTPPScraper:
-    # pre: identIn must be declared and defined with valid 3 or 4 character airport id.
+    # pre: ident must be declared and defined with valid 3 or 4 character airport id.
     # post: stores scraped charts in charts[] private member and creates new instance of DTPPScraper class
-    def __init__(self, identIn):
-        self.__ident = identIn
+    def __init__(self, ident):
+        self.__ident = ident
         self.__charts = []
         page_count = 0
-        IDENT_GET_PARAM =  "&ident=" + identIn
-        BASE_URL = "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
+        IDENT_GET_PARAM =  "&ident=" + ident
+        BASE_URL = "http://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/search/results/"
         CYCLE = self.getCurrentCycl()
         url = BASE_URL + CYCLE + IDENT_GET_PARAM
 
         # loops through html pages in FAA chart results. finishes when all pages have been scraped
         while (True):
             # gets html document from FAA chart results
-            bSoup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
+            B_SOUP = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
 
             # increment is used in http get request attribute to cycle thru pages
             page_count += 1
-            print ("Accessing charts for: " + identIn)
+            print ("Accessing charts for: " + ident)
             print("scraping page " + url)
             # loads next page if tableRowtravers() returns true, breaks loop if tableRowtravers() returns false
-            if (self.__tableRowTraverse(bSoup)):
+            if (self.__tableRowTraverse(B_SOUP)):
                 # creates new url for next page if there are more pages in result
                 url = BASE_URL + CYCLE + IDENT_GET_PARAM + "&page=" + str(page_count+1)
             else:
@@ -99,19 +99,20 @@ class DTPPScraper:
     @staticmethod
     def getCurrentCycl():
         PRESENT = datetime.datetime.now()            # present time
-        CYCLE_BASE = datetime.datetime(2016, 8, 18)   # reference point for faa cycles
-        TIME_DELTA = datetime.timedelta(days=28)      # used to increase date by 28 days. FAA chart cycle
+        TIME_DELTA = datetime.timedelta(days=28)  # used to increase date by 28 days. FAA chart cycle
+        cycle_base = datetime.datetime(2016, 8, 18)   # reference point for faa cycles
 
-        while ((CYCLE_BASE + TIME_DELTA) <= PRESENT):  #loop while cycle date is less than current date.
-            CYCLE_BASE = CYCLE_BASE + TIME_DELTA
 
-        CYCLE_BASE = CYCLE_BASE + TIME_DELTA   # adds TIME_DELTA one more time since faa cycle attribute is based on end of cycle
-        cycle_month = str(CYCLE_BASE.month)
+        while ((cycle_base + TIME_DELTA) <= PRESENT):  #loop while cycle date is less than current date.
+            cycle_base = cycle_base + TIME_DELTA
+
+        cycle_base = cycle_base + TIME_DELTA   # adds TIME_DELTA one more time since faa cycle attribute is based on end of cycle
+        cycle_month = str(cycle_base.month)
 
         if (len(cycle_month) == 1):          # if single digit month adds 0 to resulting string
             cycle_month = "0" + cycle_month
 
-        return "?cycle=" + str(CYCLE_BASE.year)[2:] + cycle_month
+        return "?cycle=" + str(cycle_base.year)[2:] + cycle_month
 
 
 
