@@ -7,9 +7,9 @@ Requires python 3.5+
 
 ## Usage
 
-Download charts to the present working directory. 
-./DTPP.py kjfk katl lax
-Downloads chart to other directory
+Download charts to the present working directory. <br />
+./DTPP.py kjfk katl lax <br />
+Downloads chart to other directory evaluation. <br />
 ./DTPP.py kvrb kfpr -d /somepath
 
 # License
